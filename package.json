@@ -1,0 +1,10 @@
+{
+  "name": "google-smart-home",
+  "version": "0.1.0",
+  "description": "A sample for describing how google smart home works",
+  "main": "index.js",
+  "repository": "git@github.com:lbwa/google-smart-home.git",
+  "author": "Bowen <asyncmode@gmail.com>",
+  "license": "MIT",
+  "private": true
+}
