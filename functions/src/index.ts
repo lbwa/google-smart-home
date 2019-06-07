@@ -31,7 +31,7 @@ import {
  * response_type: The string code.(`code` means OAuth authorization code flow,
  * rather than implicit code flow)
  */
-export const oauth = functions.https.onRequest(
+export const auth = functions.https.onRequest(
   (request: functions.https.Request, response: functions.Response) => {
     const clientId: string = request.query.client_id
     const redirectUri: string = request.query.redirect_uri
