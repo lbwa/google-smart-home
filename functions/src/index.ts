@@ -1,6 +1,5 @@
 // The Cloud Functions for Firebase SDK to create Cloud Functions and setup triggers.
 import * as functions from 'firebase-functions'
-import { Request, Response } from 'express'
 import { format } from 'util'
 import {
   verifyClientId,
@@ -29,7 +28,7 @@ import {
  * rather than implicit code flow)
  */
 export const oauth = functions.https.onRequest(
-  (request: Request, response: Response) => {
+  (request: functions.https.Request, response: functions.Response) => {
     const clientId: string = request.query.client_id
     const redirectUri: string = request.query.redirect_uri
     const state: string = request.query.state
