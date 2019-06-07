@@ -1,6 +1,6 @@
 const CLIENT_ID = 'use_to_verify_correct_request_origin'
 const CLIENT_SECRET = 'use_to_verify_to_access_our_service'
-const REDIRECT_URI_REG = /^https:\/\/oauth-redirect.googleusercontent.com\/r\//
+const REDIRECT_URI_REG = /^https:\/\/oauth-redirect\.googleusercontent\.com\/r\//
 const OATH_TYPE = 'code'
 
 function createRandomString(type: string = 'random') {
