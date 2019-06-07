@@ -3,9 +3,13 @@ import * as functions from 'firebase-functions'
 import { format } from 'util'
 import {
   verifyClientId,
+  verifyClientSecret,
   verifyRedirectUri,
   verifyResponseType,
-  createAuthCodeForExchangingToken
+  createAuthCodeForExchangingToken,
+  verifyAuthorizationCodeWithClientId,
+  verifyGrantType,
+  createTokenFromUserID
 } from './_utils'
 
 /**
@@ -44,7 +48,7 @@ export const oauth = functions.https.onRequest(
      *    redirect_uri has the following form:
      * https://oauth-redirect.googleusercontent.com/r/YOUR_PROJECT_ID
      *
-     * Redirect result:
+     * Redirect to google if any verification passed:
      * https://oauth-redirect.googleusercontent.com/r/YOUR_PROJECT_ID?code=AUTHORIZATION_CODE&state=STATE_STRING
      */
     if (
@@ -59,6 +63,8 @@ export const oauth = functions.https.onRequest(
           /**
            * `Auth code` will sent to `Token exchange` endpoint to get access
            * token and refresh token
+           *
+           * Auth code should include unique use information for token exchange
            */
           createAuthCodeForExchangingToken(),
           state
@@ -76,4 +82,55 @@ export const oauth = functions.https.onRequest(
 /**
  * Implement OAuth account linking process 2:
  * Token exchange endpoint
+ *
+ * Token exchange requests include the following parameters:
+ * client_id: A string that identifies the request origin as Google. This
+ * string must be registered within your system as Google's unique identifier.
+ *
+ * client_secret: A secret string that you registered with Google for your service.
+ *
+ * grant_type: The type of token being exchanged. Either authorization_code or refresh_token.
+ *
+ * code: When grant_type=authorization_code, the code Google received from
+ * either your sign-in or token exchange endpoint.
+ *
+ * refresh_token: When grant_type=refresh_token, the refresh token Google received from your token exchange endpoint.
  */
+export const token = functions.https.onRequest(
+  (request: functions.https.Request, response: functions.Response) => {
+    const clientId: string = request.query.client_id
+    const clientSecret: string = request.query.client_secret
+    const grantType: string = request.query.grant_type
+    const authCode: string = request.query.code
+
+    const secondsInDay = 86400
+
+    /**
+     * @description Handle two kind of token exchange:
+     * 1. Exchanging authorization codes for access tokens and refresh tokens
+     * 2. Exchanging refresh tokens for access tokens
+     */
+    if (
+      verifyClientId(clientId) &&
+      verifyClientSecret(clientSecret) &&
+      /**
+       * Include expiration verification, and clientId must match the
+       * clientId associated with the authorization code
+       */
+      verifyAuthorizationCodeWithClientId({ code: authCode, clientId }) &&
+      verifyGrantType(grantType)
+    ) {
+      return response.send(
+        // Include two kind of token exchange
+        createTokenFromUserID({
+          userId: authCode /* user ID from the authorization code */,
+          type: grantType,
+          expires: secondsInDay
+        })
+      )
+    }
+    return response.status(400).send({
+      error: 'invalid grant'
+    })
+  }
+)
