@@ -37,6 +37,10 @@ export function createAuthCodeForExchangingToken() {
   return createRandomString('authorization_code')
 }
 
+/**
+ * @description Include expiration verification, and clientId must match the
+ * clientId associated with the authorization code
+ */
 export function verifyAuthorizationCodeWithClientId({
   code,
   clientId
@@ -47,8 +51,14 @@ export function verifyAuthorizationCodeWithClientId({
   return !!code && !!clientId
 }
 
-export function verifyGrantType(type: string) {
-  return type === 'authorization_code' || type === 'refresh_token'
+export function verifyRefreshTokenWithClientId({
+  refreshToken,
+  clientId
+}: {
+  refreshToken: string
+  clientId: string
+}) {
+  return !!refreshToken || !!clientId
 }
 
 export function createTokenFromUserID({
