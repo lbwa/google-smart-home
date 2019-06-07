@@ -14,13 +14,14 @@ export function verifyResponseType(type: string) {
   /**
    * Google home action only support `Authorization code` OAuth flow
    * DOC: https://developers.google.com/actions/smarthome/concepts/fulfillment-authentication#authentication
+   *
+   * OAuth 2.0 has two types (implicit and authorization code flow)
+   * DOC: https://developers.google.com/actions/identity/oauth2?oauth=code
    */
   return OATH_TYPE === type
 }
 
 export function createAuthCodeForExchangingToken() {
   /* implement simply */
-  return Math.random()
-    .toString(16)
-    .slice(2)
+  return Math.random().toString(16).slice(2)
 }
