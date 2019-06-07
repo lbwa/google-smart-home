@@ -8,7 +8,7 @@ import {
   verifyResponseType,
   createAuthCodeForExchangingToken,
   verifyAuthorizationCodeWithClientId,
-  verifyGrantType,
+  verifyRefreshTokenWithClientId,
   createTokenFromUserID
 } from './_utils'
 
@@ -102,35 +102,39 @@ export const token = functions.https.onRequest(
     const clientSecret: string = request.query.client_secret
     const grantType: string = request.query.grant_type
     const authCode: string = request.query.code
+    const refreshToken: string = request.query.refresh_token
 
     const secondsInDay = 86400
 
-    /**
-     * @description Handle two kind of token exchange:
-     * 1. Exchanging authorization codes for access tokens and refresh tokens
-     * 2. Exchanging refresh tokens for access tokens
-     */
-    if (
-      verifyClientId(clientId) &&
-      verifyClientSecret(clientSecret) &&
+    if (grantType === 'authorization_code' || grantType === 'refresh_token') {
       /**
-       * Include expiration verification, and clientId must match the
-       * clientId associated with the authorization code
+       * @description Handle two kind of token exchange:
+       * 1. Exchanging authorization codes for access tokens and refresh tokens
+       * 2. Exchanging refresh tokens for access tokens
        */
-      verifyAuthorizationCodeWithClientId({ code: authCode, clientId }) &&
-      verifyGrantType(grantType)
-    ) {
-      return response.send(
-        // Include two kind of token exchange
-        createTokenFromUserID({
-          userId: authCode /* user ID from the authorization code */,
-          type: grantType,
-          expires: secondsInDay
-        })
-      )
+      if (
+        verifyClientId(clientId) &&
+        verifyClientSecret(clientSecret) &&
+        // auth code exchanging verification
+        (verifyAuthorizationCodeWithClientId({ code: authCode, clientId }) ||
+          // refresh token exchanging verification
+          verifyRefreshTokenWithClientId({ refreshToken, clientId }))
+      ) {
+        return response.send(
+          createTokenFromUserID({
+            userId: authCode /* user ID from the authorization code */,
+            type: grantType,
+            expires: secondsInDay
+          })
+        )
+      }
+      return response.status(400).send({
+        error: 'invalid grant'
+      })
     }
+
     return response.status(400).send({
-      error: 'invalid grant'
+      error: 'invalid grant_type'
     })
   }
 )
