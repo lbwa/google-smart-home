@@ -97,12 +97,16 @@ export const auth = functions.https.onRequest(
  * refresh_token: When grant_type=refresh_token, the refresh token Google received from your token exchange endpoint.
  */
 export const token = functions.https.onRequest(
+  /* In practice, Google assistants will send a `POST` request */
   (request: functions.https.Request, response: functions.Response) => {
-    const clientId: string = request.query.client_id
-    const clientSecret: string = request.query.client_secret
-    const grantType: string = request.query.grant_type
-    const authCode: string = request.query.code
-    const refreshToken: string = request.query.refresh_token
+    const clientId: string = request.query.client_id || request.body.client_id
+    const clientSecret: string =
+      request.query.client_secret || request.body.client_secret
+    const grantType: string =
+      request.query.grant_type || request.body.grant_type
+    const authCode: string = request.query.code || request.body.code
+    const refreshToken: string =
+      request.query.refresh_token || request.body.refresh_token
 
     const secondsInDay = 86400
 
@@ -134,7 +138,7 @@ export const token = functions.https.onRequest(
       })
     }
 
-    return response.status(400).send({
+    return response.status(403).send({
       error: 'invalid grant_type'
     })
   }
