@@ -58,7 +58,7 @@ export function verifyRefreshTokenWithClientId({
   refreshToken: string
   clientId: string
 }) {
-  return !!refreshToken || !!clientId
+  return !!refreshToken && !!clientId
 }
 
 export function createTokenFromUserID({
