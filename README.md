@@ -8,7 +8,7 @@ You should follow these step to build this sample if you want to work with fireb
 
 [firebase/issues/155]: https://github.com/firebase/firebase-tools/issues/155
 
-1. mutate your `faya-websocket` dependency (dependant by `firebase-tools`) config.
+1. mutate the source code of `faya-websocket` dependency (`firebase-tools` dependents on it).
 
    ```js
    var Client = function(_url, protocols, options) {
@@ -24,11 +24,15 @@ You should follow these step to build this sample if you want to work with fireb
 1. Export two variables
 
    ```sh
-   export http_proxy=http://localhost:<Local network proxy port>
+   # eg:
+   # > export http_proxy=http://127.0.0.1:8000
+   export http_proxy=<the http address of network proxy, included network port>
+
+   # Optional step
    export NODE_TLS_REJECT_UNAUTHORIZED=0
    ```
 
-1. input `firebase login` in your own `shell`
+1. `firebase login` without local server in your own `shell`
 
    ```sh
    firebase login --no-localhost
