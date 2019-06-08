@@ -1,10 +1,10 @@
 # Google Smart Home
 
-> This sample is used to describe how to build your own backend service associated with Google Home
+> This sample is used to describe how to build your own backend service associated with Google Home.
 
 ## Notice
 
-You should follow this step to build this sample if you want to work with firebase and a network proxy (More details: [firebase/issues/155]).
+You should follow these step to build this sample if you want to work with firebase and a network proxy (More details: [firebase/issues/155]).
 
 [firebase/issues/155]: https://github.com/firebase/firebase-tools/issues/155
 
