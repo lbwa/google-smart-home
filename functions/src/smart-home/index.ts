@@ -1,5 +1,10 @@
 import * as functions from 'firebase-functions'
-import { smarthome } from 'actions-on-google'
+import {
+  smarthome,
+  SmartHomeV1ExecuteResponseCommands
+} from 'actions-on-google'
+import { firebaseRef } from '../database'
+import { ApiClientObjectMap } from 'actions-on-google/dist/common'
 
 /**
  * DOC: https://github.com/actions-on-google/actions-on-google-nodejs/
@@ -96,6 +101,81 @@ app.onSync((body, headers) => {
         }
       ]
     }
+  }
+})
+
+/**
+ * @description The intend is triggered to provided commands to execute on
+ * smart home device
+ *
+ * DOC: https://developers.google.com/actions/smarthome/develop/process-intents#EXECUTE
+ */
+
+app.onExecute(({ requestId, inputs }, headers) => {
+  const responsePayload: { commands: SmartHomeV1ExecuteResponseCommands[] } = {
+    commands: [
+      {
+        ids: [''],
+        status: 'SUCCESS',
+        states: {
+          online: true,
+          on: false,
+          isRunning: false,
+          isPaused: false
+        }
+      }
+    ]
+  }
+  Object.values(inputs).forEach(({ payload: { commands } }) => {
+    commands.forEach(({ devices, execution }) => {
+      responsePayload.commands[0].ids = devices.map(({ id: deviceId }) => {
+        execution.forEach(({ command, params }) => {
+          switch (command) {
+            case 'action.devices.commands.OnOff':
+              ;(responsePayload.commands[0].states as ApiClientObjectMap<
+                any
+              >).on = params.on
+              return firebaseRef
+                .child(deviceId)
+                .child('OnOff')
+                .update({
+                  on: params.on
+                })
+
+            case 'action.devices.commands.StartStop':
+              ;(responsePayload.commands[0].states as ApiClientObjectMap<
+                any
+              >).isRunning = params.start
+              return firebaseRef
+                .child(deviceId)
+                .child('StartStop')
+                .update({
+                  isRunning: params.start
+                })
+
+            case 'action.devices.commands.PauseUnpause':
+              ;(responsePayload.commands[0].states as ApiClientObjectMap<
+                any
+              >).isPaused = params.pause
+              return firebaseRef
+                .child(deviceId)
+                .child('StartStop')
+                .update({
+                  isPaused: params.pause
+                })
+
+            default:
+              return
+          }
+        })
+
+        return deviceId
+      })
+    })
+  })
+  return {
+    requestId,
+    payload: responsePayload
   }
 })
 
