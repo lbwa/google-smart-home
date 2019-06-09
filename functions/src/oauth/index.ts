@@ -127,7 +127,7 @@ export const token = functions.https.onRequest(
         return response.send(
           createTokenFromUserID({
             // user ID from the authorization code
-            userId: authCode.substr(4),
+            userId: (authCode || refreshToken).substr(4),
             type: grantType,
             expires: secondsInDay
           })
