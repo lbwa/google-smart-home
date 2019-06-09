@@ -179,6 +179,44 @@ app.onExecute(({ requestId, inputs }, headers) => {
   }
 })
 
+const queryFirebase = async (deviceId: string) => {
+  const snapshot = await firebaseRef.child(deviceId).once('value')
+  const snapshotVal = snapshot.val()
+  return {
+    on: snapshotVal.OnOff.on,
+    isPaused: snapshotVal.StartStop.isPaused,
+    isRunning: snapshotVal.StartStop.isRunning
+  }
+}
+const queryDevice = async (deviceId: string) => {
+  const data = await queryFirebase(deviceId)
+  return {
+    on: data.on,
+    isPaused: data.isPaused,
+    isRunning: data.isRunning
+  }
+}
+
+app.onQuery(async ({ requestId, inputs }) => {
+  const devices: { [key: string]: any } = {}
+  const queryPromises: any[] = []
+  inputs.forEach(({ payload: { devices: payloadDevices } }) => {
+    payloadDevices.forEach(({ id: deviceId }) => {
+      queryPromises.push(
+        queryDevice(deviceId).then((data: any) => (devices[deviceId] = data))
+      )
+    })
+  })
+
+  await Promise.all(queryPromises)
+  return {
+    requestId,
+    payload: {
+      devices
+    }
+  }
+})
+
 export const smartHome = functions.https.onRequest(app)
 
 export const requestSync = functions.https.onRequest(
