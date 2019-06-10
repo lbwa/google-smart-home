@@ -70,7 +70,8 @@ app.onSync((body, headers) => {
             'action.devices.traits.OnOff',
             'action.devices.traits.StartStop',
             'action.devices.traits.RunCycle',
-            'action.devices.traits.Modes'
+            'action.devices.traits.Modes',
+            'action.devices.traits.Toggles'
           ],
           name: {
             /**
@@ -139,6 +140,17 @@ app.onSync((body, headers) => {
                   }
                 ],
                 ordered: true
+              }
+            ],
+            availableToggles: [
+              {
+                name: 'Turbo',
+                name_values: [
+                  {
+                    name_synonym: ['turbo'],
+                    lang: 'en'
+                  }
+                ]
               }
             ]
           }
@@ -215,6 +227,14 @@ app.onExecute(({ requestId, inputs }, headers) => {
                 .update({
                   load: params.updateModeSettings.load
                 })
+
+            case 'action.devices.commands.SetToggles':
+              return firebaseRef
+                .child(deviceId)
+                .child('Toggles')
+                .update({
+                  Turbo: params.updateToggleSettings.Turbo
+                })
             default:
               return
           }
@@ -237,7 +257,8 @@ const queryFirebase = async (deviceId: string) => {
     on: snapshotVal.OnOff.on,
     isPaused: snapshotVal.StartStop.isPaused,
     isRunning: snapshotVal.StartStop.isRunning,
-    load: snapshotVal.Modes.load
+    load: snapshotVal.Modes.load,
+    turbo: snapshotVal.Toggles.Turbo
   }
 }
 const queryDevice = async (deviceId: string) => {
@@ -261,6 +282,9 @@ const queryDevice = async (deviceId: string) => {
     currentCycleRemainingTime: 301,
     currentModeSettings: {
       load: data.load
+    },
+    currentToggleSettings: {
+      Turbo: data.turbo
     }
   }
 }
