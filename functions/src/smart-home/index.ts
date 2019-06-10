@@ -7,6 +7,11 @@ import { firebaseRef } from '../database'
 import { ApiClientObjectMap } from 'actions-on-google/dist/common'
 
 /**
+ * @description Smart home all reference including properties and Request API
+ * https://developers.google.com/actions/smarthome/traits/
+ */
+
+/**
  * DOC: https://github.com/actions-on-google/actions-on-google-nodejs/
  */
 const app = smarthome({
@@ -17,6 +22,7 @@ const app = smarthome({
 /**
  * @description SYNC intents
  * DOC: https://developers.google.com/actions/smarthome/develop/process-intents#SYNC
+ * REFER: https://developers.google.com/actions/smarthome/reference/rest/v1/devices/sync
  */
 app.onSync((body, headers) => {
   // TODO Implement full SYNC response
@@ -63,7 +69,8 @@ app.onSync((body, headers) => {
           traits: [
             'action.devices.traits.OnOff',
             'action.devices.traits.StartStop',
-            'action.devices.traits.RunCycle'
+            'action.devices.traits.RunCycle',
+            'action.devices.traits.Modes'
           ],
           name: {
             /**
@@ -96,7 +103,44 @@ app.onSync((body, headers) => {
             swVersion: '1.0.1' // software version
           },
           attributes: {
-            pauseable: true
+            pauseable: true,
+            /**
+             * @description Each mode has a name and at least 2 settings.
+             * DOC: https://developers.google.com/actions/smarthome/traits/modes#request
+             */
+            availableModes: [
+              {
+                // Internal name, which will be used in commands and states.
+                name: 'load',
+                name_values: [
+                  {
+                    name_synonym: ['load'],
+                    lang: 'en'
+                  }
+                ],
+                settings: [
+                  {
+                    setting_name: 'small',
+                    setting_values: [
+                      {
+                        setting_synonym: ['small'],
+                        lang: 'en'
+                      }
+                    ]
+                  },
+                  {
+                    setting_name: 'large',
+                    setting_values: [
+                      {
+                        setting_synonym: ['large'],
+                        lang: 'en'
+                      }
+                    ]
+                  }
+                ],
+                ordered: true
+              }
+            ]
           }
         }
       ]
@@ -164,6 +208,13 @@ app.onExecute(({ requestId, inputs }, headers) => {
                   isPaused: params.pause
                 })
 
+            case 'action.devices.commands.SetModes':
+              return firebaseRef
+                .child(deviceId)
+                .child('Modes')
+                .update({
+                  load: params.updateModeSettings.load
+                })
             default:
               return
           }
@@ -185,7 +236,8 @@ const queryFirebase = async (deviceId: string) => {
   return {
     on: snapshotVal.OnOff.on,
     isPaused: snapshotVal.StartStop.isPaused,
-    isRunning: snapshotVal.StartStop.isRunning
+    isRunning: snapshotVal.StartStop.isRunning,
+    load: snapshotVal.Modes.load
   }
 }
 const queryDevice = async (deviceId: string) => {
@@ -193,7 +245,23 @@ const queryDevice = async (deviceId: string) => {
   return {
     on: data.on,
     isPaused: data.isPaused,
-    isRunning: data.isRunning
+    isRunning: data.isRunning,
+    /**
+     * @description Device RunCycle states
+     *https://developers.google.com/actions/smarthome/traits/runcycle#device-states
+     */
+    currentRunCycle: [
+      {
+        currentCycle: 'rinse',
+        nextCycle: 'spin',
+        lang: 'en'
+      }
+    ],
+    currentTotalRemainingTime: 1212,
+    currentCycleRemainingTime: 301,
+    currentModeSettings: {
+      load: data.load
+    }
   }
 }
 
