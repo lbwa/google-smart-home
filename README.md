@@ -1,14 +1,14 @@
 # Google Smart Home
 
-> This sample is used to describe how to build your own backend service associated with Google Home Control.
+This sample is used to describe how to build your own backend service associated with Google Home Control.
 
-## 🔖Reference
+### Reference🔖
 
 There are all [smart home references] including all data schema and `REST` API, `RPC` API, etc.
 
 [smart home references]: https://developers.google.com/actions/smarthome/traits/
 
-## ⚠️Notice
+### Notice⚠️
 
 You should follow these step to build this sample if you want that firebase works with a network proxy (More details: [firebase/issues/155]).
 
