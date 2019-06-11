@@ -7,13 +7,9 @@ import { project_id } from '../config/index.json'
 export default function() {
   const [state, setState] = useState(initialDeviceState)
   useEffect(() => {
-    fetch(`https://us-central1-${project_id}.cloudfunctions.net/requestSync`, {
-      method: 'POST'
-    })
-      .then(res => res.json())
-      .then(({ code }) => {
-        code === 200 && console.log('Request sync success !')
-      })
+    requestSync()
+
+    // Listen database value changing
     dbRef.child('washer').on('value', snapshot => {
       if (snapshot.exists()) {
         setState(snapshot.val())
@@ -37,6 +33,19 @@ export default function() {
   )
 }
 
+function requestSync() {
+  return fetch(
+    `https://us-central1-${project_id}.cloudfunctions.net/requestSync`,
+    {
+      method: 'POST'
+    }
+  )
+    .then(res => res.json())
+    .then(({ code }) => {
+      code === 200 && console.log('Request sync success !')
+    })
+}
+
 const Article = styled.article`
   display: flex;
   flex-direction: column;
@@ -57,18 +66,19 @@ const Article = styled.article`
     height: 60px;
     line-height: 60px;
     text-align: center;
-    // color: white;
   }
 
   .title {
     h1 {
       margin: 0;
       text-transform: capitalize;
-      // color: white;
     }
   }
 
   .main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     flex: 1;
     max-width: 980px;
   }

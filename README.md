@@ -6,6 +6,8 @@ This sample is used to describe how to build your own backend service associated
 
 There are all [smart home references] including all data schema and `REST` API, `RPC` API, etc.
 
+Google home official site: https://developers.google.com/actions/smarthome/concepts/
+
 [smart home references]: https://developers.google.com/actions/smarthome/traits/
 
 ### Notice⚠️

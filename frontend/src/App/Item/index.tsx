@@ -12,7 +12,7 @@ export default function Item({ state }: ItemProps) {
     turbo: state.Toggles.Turbo
   }
   return (
-    <Card title="Smart Device" style={{ width: 300, margin: '0 auto' }}>
+    <Card title="Smart Device" style={{ width: 300 }}>
       <Modes mode={state.Modes}>1</Modes>
       {Object.keys(stateWithTitle).map(title => (
         <P key={title}>
@@ -27,6 +27,7 @@ export default function Item({ state }: ItemProps) {
 interface ItemProps {
   children?: JSX.Element | string | (JSX.Element | string)[]
   state: DeviceState
+  onClick?: (prams: any) => any
 }
 
 export interface DeviceState {
