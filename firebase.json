@@ -9,7 +9,7 @@
     ]
   },
   "hosting": {
-    "public": "frontend",
+    "public": "frontend/build",
     "rewrites": [
       {
         "source": "/oauth/**",
