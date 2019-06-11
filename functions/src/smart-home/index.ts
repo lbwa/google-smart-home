@@ -10,9 +10,10 @@ import {
 import { firebaseRef } from '../database'
 import { ApiClientObjectMap } from 'actions-on-google/dist/common'
 
-let apiKey
+let key, jwt
 try {
-  apiKey = require('../firebase-api-key.json')
+  key = require('../config.json').google_api_key
+  jwt = require('../project-editor-access.json')
 } catch (err) {
   console.warn(err)
   console.warn('API key is not found.')
@@ -24,7 +25,8 @@ try {
  */
 const app = smarthome({
   debug: true,
-  key: apiKey.value
+  key,
+  jwt
 })
 
 /**
@@ -366,7 +368,30 @@ export const requestSync = functions.https.onRequest(
 )
 
 export const reportState = functions.database
-  .ref('{deviceId}')
-  .onWrite((change, context) => {
+  .ref('washer')
+  .onWrite(async (change, context) => {
     console.log('Firebase write event triggered this cloud function')
+    const snapshot = change.after.val()
+
+    const data = await app.reportState({
+      // Any unique ID
+      requestId: Math.random()
+        .toString(16)
+        .slice(2),
+      agentUserId: 'agent_user_id',
+      payload: {
+        devices: {
+          states: {
+            // report the current state of our device
+            [context.params.deviceId]: {
+              on: snapshot.OnOff.on,
+              isPaused: snapshot.StartStop.isPaused,
+              isRunning: snapshot.StartStop.isRunning
+            }
+          }
+        }
+      }
+    })
+    console.info('Report state came back')
+    console.info(data)
   })
