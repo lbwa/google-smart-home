@@ -1,3 +1,7 @@
+/**
+ * @description Smart home all reference including properties and Request API
+ * https://developers.google.com/actions/smarthome/traits/
+ */
 import * as functions from 'firebase-functions'
 import {
   smarthome,
@@ -6,17 +10,21 @@ import {
 import { firebaseRef } from '../database'
 import { ApiClientObjectMap } from 'actions-on-google/dist/common'
 
-/**
- * @description Smart home all reference including properties and Request API
- * https://developers.google.com/actions/smarthome/traits/
- */
+let apiKey
+try {
+  apiKey = require('../firebase-api-key.json')
+} catch (err) {
+  console.warn(err)
+  console.warn('API key is not found.')
+  console.warn('Request sync will be unavailable.')
+}
 
 /**
  * DOC: https://github.com/actions-on-google/actions-on-google-nodejs/
  */
 const app = smarthome({
   debug: true,
-  key: '<api-key>'
+  key: apiKey.value
 })
 
 /**
@@ -311,6 +319,21 @@ app.onQuery(async ({ requestId, inputs }) => {
 
 export const smartHome = functions.https.onRequest(app)
 
+/**
+ * @description Request Sync triggers a SYNC request to your fulfillment for
+ * any Google user with devices that have the specified agentUserId associated
+ * with them. This allows you to update users' devices without unlinking and
+ * relinking their account.
+ *
+ * DOC: https://developers.google.com/actions/smarthome/develop/request-sync
+ *
+ * You should trigger SYNC request:
+ * 1. If the user adds a new device.
+ * 2. If the user removes an existing device.
+ * 3. If the user rename an existing device.
+ * 4. If the user change a device location such as rooms(Only if your application support this).
+ * 5. If your implement a new device type, trait, or add a new device feature.
+ */
 export const requestSync = functions.https.onRequest(
   async (request, response) => {
     try {
@@ -318,10 +341,23 @@ export const requestSync = functions.https.onRequest(
        * Sends a request to the home graph to send a new SYNC request.
        * This should be called when a device is added or removed for a given user id.
        */
-      const res = await app.requestSync('agent_user_id')
-      response.send({
-        data: res
-      })
+      /**
+       * @description If successful, the response body will be empty.
+       *
+       * Request body:
+       * DOC: https://developers.google.com/actions/smarthome/reference/rest/v1/devices/requestSync#request-body
+       * Response body:
+       * DOC: https://developers.google.com/actions/smarthome/reference/rest/v1/devices/requestSync#response-body
+       */
+      await app.requestSync('agent_user_id')
+      response
+        .set({
+          'Access-Control-Allow-Origin': '*'
+        })
+        .send({
+          code: 200,
+          message: 'success'
+        })
     } catch (e) {
       console.error(e)
       response.status(500).send(`Error requesting sync ${e}`)
