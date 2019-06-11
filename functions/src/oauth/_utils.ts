@@ -1,5 +1,13 @@
-const CLIENT_ID = 'use_to_verify_correct_request_origin'
-const CLIENT_SECRET = 'use_to_verify_to_access_our_service'
+let CLIENT_ID: string, CLIENT_SECRET: string
+try {
+  const config = require('../config.json')
+  CLIENT_ID = config.client_id
+  CLIENT_SECRET = config.client_secret
+} catch (err) {
+  console.warn(err)
+  console.warn('Config file is not found.')
+}
+
 const REDIRECT_URI_REG = /^https:\/\/oauth-redirect\.googleusercontent\.com\/r\//
 const OATH_TYPE = 'code'
 

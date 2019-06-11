@@ -1,17 +1,18 @@
 import * as admin from 'firebase-admin'
 
-let serviceAccountKey
+let serviceAccountKey, projectId
 try {
   serviceAccountKey = require('../firebase-admin-sdk.json')
+  projectId = require('../config.json').project_id
 } catch (err) {
   console.warn(err)
-  console.warn('Service account key is not found.')
+  console.warn('Service account key or config file is not found.')
   console.warn('Report state and Request sync will be unavailable.')
 }
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccountKey),
-  databaseURL: 'https://smart-home-88eea.firebaseio.com'
+  databaseURL: `https://${projectId}.firebaseio.com`
 })
 
 export const firebaseRef = admin.database().ref('/')
