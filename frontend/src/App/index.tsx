@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { Card } from 'antd'
+import { Card, Button, message } from 'antd'
 import { dbRef } from './firebase'
 import Modes from './Modes'
 import Switch, { SwitchProps } from '../components/Switch'
@@ -22,27 +22,27 @@ export default function App() {
           {
             title: 'On/Off',
             isChecked: state.OnOff.on,
-            tag: 'OnOff/on'
+            path: ['OnOff', 'on']
           },
           {
             title: 'RunCycle',
             isChecked: state.RunCycle.dummy,
-            tag: 'RunCycle/dummy'
+            path: ['RunCycle', 'dummy']
           },
           {
             title: 'Start/Stop: isPaused',
             isChecked: state.StartStop.isPaused,
-            tag: 'StartStop/isPaused'
+            path: ['StartStop', 'isPaused']
           },
           {
             title: 'Start/Stop: isRunning',
             isChecked: state.StartStop.isRunning,
-            tag: 'StartStop/isRunning'
+            path: ['StartStop', 'isRunning']
           },
           {
             title: 'Toggles Turbo',
             isChecked: state.Toggles.Turbo,
-            tag: 'Toggles/Turbo'
+            path: ['Toggles', ' Turbo']
           }
         ])
       }
@@ -60,8 +60,47 @@ export default function App() {
         <Card title="Smart Device" style={{ width: 300 }} loading={loading}>
           <Modes mode={deviceState.Modes}>1</Modes>
           {stateMap.map(map => (
-            <Switch key={map.title} {...map} />
+            <Switch
+              key={map.title}
+              onChange={({ checked, path, title }) => {
+                const newState = { ...deviceState }
+                const newStateMap = [...stateMap]
+                if (path && path.length) {
+                  newState[path[0]][path[1]] = checked
+                  setDeviceState(newState)
+
+                  let index: number = 0
+                  for (const map of newStateMap) {
+                    if (map.title === title) {
+                      newStateMap[index] = {
+                        ...map,
+                        isChecked: checked
+                      }
+                      break
+                    }
+                    index++
+                  }
+                  setStateMap(newStateMap)
+                }
+              }}
+              {...map}
+            />
           ))}
+          <Button
+            type="primary"
+            block
+            onClick={() => {
+              console.log('Current deviceState', deviceState)
+              dbRef
+                .child('washer')
+                .set(deviceState)
+                .then(() =>
+                  message.success('Update device state successfully.')
+                )
+            }}
+          >
+            Update Device
+          </Button>
         </Card>
       </main>
       <footer className="footer">
@@ -80,7 +119,7 @@ function requestSync() {
   )
     .then(res => res.json())
     .then(({ code }) => {
-      code === 200 && console.log('Request sync success !')
+      code === 200 && message.success('Request sync success !')
     })
 }
 

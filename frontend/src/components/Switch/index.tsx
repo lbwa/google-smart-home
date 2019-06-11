@@ -5,15 +5,29 @@ import { Switch as AntSwitch } from 'antd'
 export interface SwitchProps {
   title: string
   isChecked: boolean
-  tag?: string
-  onChange?: (checked: boolean, evt: Event) => any
+  path?: string[]
+  onChange?: (payload: {
+    checked: boolean
+    path: string[] | undefined
+    title: string
+  }) => any
 }
 
-export default function Switch({ title, isChecked }: SwitchProps) {
+export default function Switch({
+  title,
+  isChecked,
+  path,
+  onChange
+}: SwitchProps) {
   return (
     <P>
       <span>{title}</span>
-      <AntSwitch checked={isChecked} />
+      <AntSwitch
+        onChange={(checked, evt) => {
+          onChange && onChange({ checked, path, title })
+        }}
+        checked={isChecked}
+      />
     </P>
   )
 }
