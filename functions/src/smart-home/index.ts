@@ -367,31 +367,53 @@ export const requestSync = functions.https.onRequest(
   }
 )
 
+/**
+ * 主动向 Google Home Graph 推送当前设备的最后状态
+ * @description  lets the smart home Action proactively report the latest
+ * status of the user’s device back to Google’s Home Graph rather than waiting
+ * for a QUERY intent.
+ *
+ * NOTICE: Only support Nodejs 8 util now on(2019-06-11).
+ * more details: https://github.com/firebase/firebase-functions/issues/447
+ */
 export const reportState = functions.database
-  .ref('washer')
+  // https://firebase.google.com/docs/reference/functions/functions.database#.ref
+  .ref('{deviceId}')
+  /**
+   * @description Event handler that fires every time a Firebase Real-time
+   * Database write of any kind (creation, update, or delete) occurs.
+   *
+   * DOC: https://firebase.google.com/docs/reference/functions/functions.database.RefBuilder
+   */
   .onWrite(async (change, context) => {
     console.log('Firebase write event triggered this cloud function')
+    console.info('Current device id is', context.params.deviceId)
     const snapshot = change.after.val()
 
-    const data = await app.reportState({
-      // Any unique ID
-      requestId: Math.random()
-        .toString(16)
-        .slice(2),
-      agentUserId: 'agent_user_id',
-      payload: {
-        devices: {
-          states: {
-            // report the current state of our device
-            [context.params.deviceId]: {
-              on: snapshot.OnOff.on,
-              isPaused: snapshot.StartStop.isPaused,
-              isRunning: snapshot.StartStop.isRunning
+    try {
+      const data = await app.reportState({
+        // Any unique ID
+        requestId: Math.random()
+          .toString(16)
+          .slice(2),
+        agentUserId: 'agent_user_id',
+        payload: {
+          devices: {
+            states: {
+              // report the current state of our device
+              [context.params.deviceId]: {
+                on: snapshot.OnOff.on,
+                isPaused: snapshot.StartStop.isPaused,
+                isRunning: snapshot.StartStop.isRunning
+              }
             }
           }
         }
-      }
-    })
-    console.info('Report state came back')
-    console.info(data)
+      })
+      console.info('Report state came back')
+      console.info(data)
+    } catch (err) {
+      console.error('Report state failed !')
+      console.error(err)
+    }
   })
