@@ -16,6 +16,7 @@ export default (appInfo: EggAppInfo) => {
   // add your egg config in here
   config.middleware = []
 
+  // egg security
   config.security = {
     csrf: {
       ignore: '/smart_home'
@@ -29,6 +30,15 @@ export default (appInfo: EggAppInfo) => {
     OAUTH_CLIENT_SECRET,
     GOOGLE_PROJECT_ID,
     GOOGLE_API_KEY
+    // mongoose
+    // mongoose: {
+    //   client: {
+    //     url: 'mongodb://localhost/smartHome',
+    //     options: {},
+    //     // mongoose global plugins, expected a function or an array of function and options
+    //     plugins: []
+    //   }
+    // }
   }
 
   // the return config will combines to EggAppConfig
