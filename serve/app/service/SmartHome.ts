@@ -3,7 +3,7 @@ import { Service } from 'egg'
 export default class SmartHome extends Service {
   async dispatch({ type, payload, requestId }) {
     if (type === 'action.devices.SYNC') {
-      return this.service.smartHome.onSync(requestId)
+      return this.service.smartHome.onSync()
     }
     if (type === 'action.devices.QUERY') {
       return this.service.smartHome.onQuery(requestId, payload)
@@ -15,16 +15,23 @@ export default class SmartHome extends Service {
       return this.service.smartHome.onDisconnect(requestId, payload)
     }
 
-    return Promise.reject({
-      code: 400,
-      msg: 'Invalid action intent'
-    })
+    return this.errorHandler('notSupported')
   }
 
-  public async onSync(requestId: string) {
-    // todo
-    return {
-      requestId
+  public async onSync() {
+    try {
+      const userId = await this.service.auth.getUserOrThrow()
+      const devices = await this.service.simulator.getDevices(userId)
+
+      return {
+        requestId: this.ctx.request.body.requestId,
+        payload: {
+          agentUserId: userId,
+          devices
+        }
+      }
+    } catch (err) {
+      return this.errorHandler(err.message)
     }
   }
 
@@ -65,6 +72,15 @@ export default class SmartHome extends Service {
     console.log('reportedState :', reportedState)
     return {
       code: 200
+    }
+  }
+
+  private errorHandler(msg: string) {
+    return {
+      requestId: this.ctx.request.body.requestId,
+      payload: {
+        errorCode: msg || 'unknownError'
+      }
     }
   }
 }
