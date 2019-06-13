@@ -1,4 +1,10 @@
 import { EggAppConfig, EggAppInfo, PowerPartial } from 'egg'
+import {
+  oauth_client_id as OAUTH_CLIENT_ID,
+  oauth_client_secret as OAUTH_CLIENT_SECRET,
+  google_project_id as GOOGLE_PROJECT_ID,
+  google_api_key as GOOGLE_API_KEY
+} from './index.json'
 
 export default (appInfo: EggAppInfo) => {
   const config = {} as PowerPartial<EggAppConfig>
@@ -18,7 +24,11 @@ export default (appInfo: EggAppInfo) => {
 
   // add your special config in here
   const bizConfig = {
-    sourceUrl: `https://github.com/eggjs/examples/tree/master/${appInfo.name}`
+    sourceUrl: `https://github.com/eggjs/examples/tree/master/${appInfo.name}`,
+    OAUTH_CLIENT_ID,
+    OAUTH_CLIENT_SECRET,
+    GOOGLE_PROJECT_ID,
+    GOOGLE_API_KEY
   }
 
   // the return config will combines to EggAppConfig
