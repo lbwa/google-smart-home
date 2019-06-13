@@ -12,9 +12,11 @@ export default class Auth extends Service {
    * with a `Authorization` request header.
    * @param header Koa Request header
    */
-  private async getUser(accessToken) {
+  private async getUser() {
     try {
-      return await Promise.resolve({ userId: accessToken })
+      const { authorization } = this.ctx.request.header
+      const accessToken = (authorization as string).replace(/Bearer\s/, '')
+      return await this.service.firestore.getUserId(accessToken)
     } catch (err) {
       throw new Error(this.ERROR_MAP.authExpired)
     }
@@ -22,9 +24,14 @@ export default class Auth extends Service {
 
   public async getUserOrThrow() {
     try {
-      const { authorization } = this.ctx.request.header
-      const accessToken = (authorization as string).replace(/Bearer\s/, '')
-      const { userId } = await this.getUser(accessToken)
+      const userId = await this.getUser()
+      const userExists = await this.service.firestore.userExists(userId)
+
+      if (!userExists) {
+        throw new Error(
+          `User ${userId} has not created an account, so there are no devices`
+        )
+      }
       return userId
     } catch (err) {
       throw new Error(err || this.ERROR_MAP.authFailure)

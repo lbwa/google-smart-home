@@ -21,7 +21,8 @@ export default class SmartHome extends Service {
   public async onSync() {
     try {
       const userId = await this.service.auth.getUserOrThrow()
-      const devices = await this.service.simulator.getDevices(userId)
+      await this.service.firestore.setHomegraphEnabled(userId,true)
+      const devices = await this.service.firestore.getDevices(userId)
 
       return {
         requestId: this.ctx.request.body.requestId,
