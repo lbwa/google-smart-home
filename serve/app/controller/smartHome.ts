@@ -7,14 +7,14 @@ export default class SmartHomeController extends Controller {
     const { intent, payload = {} } = inputs[0]
 
     try {
-      ctx.body = await service.SmartHome.dispatch({
+      ctx.body = await service.smartHome.dispatch({
         type: intent,
         payload,
         requestId
       })
     } catch (err) {
       ctx.status = err.code || 400
-      ctx.body = err.body || 'Bad request'
+      ctx.body = err.msg || 'Bad request'
     }
   }
 }
