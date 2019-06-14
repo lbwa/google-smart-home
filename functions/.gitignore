@@ -8,4 +8,5 @@ typings/
 node_modules/
 
 # service account keys
-*.json
+src/*.json
+lib/*.json
