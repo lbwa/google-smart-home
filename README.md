@@ -6,9 +6,29 @@ This sample is used to describe how to build your own backend service associated
 
 There are all [smart home references] including all data schema and `REST` API, `RPC` API, etc.
 
-Google home official site: https://developers.google.com/actions/smarthome/concepts/
+- [Google home official site]
 
+[google home official site]: https://developers.google.com/actions/smarthome/concepts/
 [smart home references]: https://developers.google.com/actions/smarthome/traits/
+
+### Deployment
+
+There are two kinds of deployment:
+
+1. Deploy your backend services to `firebase functions` and `firebase real-time database`. You should download your `firebase-admin-sdk.json` to `functions/src/firebase-admin-sdk.json` before link to firebase real-time database.
+
+   - `frontend` is a dashboard for firebase real-time database.
+   - `functions` is firebase cloud functions directory.
+
+     ```bash
+     firebase login
+
+     firebase deploy
+
+     # all functionalities are deployed in the firebase from now on
+     ```
+
+2. Deploy your backend services to your own private services.
 
 ### Notice⚠️
 
