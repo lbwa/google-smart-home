@@ -29,16 +29,16 @@ export default (appInfo: EggAppInfo) => {
     OAUTH_CLIENT_ID,
     OAUTH_CLIENT_SECRET,
     GOOGLE_PROJECT_ID,
-    GOOGLE_API_KEY
+    GOOGLE_API_KEY,
     // mongoose
-    // mongoose: {
-    //   client: {
-    //     url: 'mongodb://localhost/smartHome',
-    //     options: {},
-    //     // mongoose global plugins, expected a function or an array of function and options
-    //     plugins: []
-    //   }
-    // }
+    mongoose: {
+      client: {
+        url: 'mongodb://localhost/smartHome',
+        options: {},
+        // mongoose global plugins, expected a function or an array of function and options
+        plugins: []
+      }
+    }
   }
 
   // the return config will combines to EggAppConfig
