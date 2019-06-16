@@ -11,11 +11,11 @@ There are all [smart home references] including all data schema and `REST` API, 
 [google home official site]: https://developers.google.com/actions/smarthome/concepts/
 [smart home references]: https://developers.google.com/actions/smarthome/traits/
 
-### Deployment
+### Deployment🚀
 
 There are two kinds of deployment:
 
-1. Deploy your backend services to `firebase functions` and `firebase real-time database`. You should download your `firebase-admin-sdk.json` to `functions/src/firebase-admin-sdk.json` before link to firebase real-time database.
+1. Deploy `Smart Home` services to `firebase functions` and `firebase real-time database`. You should download your [firebase-admin-sdk.json] to `functions/src/firebase-admin-sdk.json` before link to firebase real-time database.
 
    - `frontend` is a dashboard for firebase real-time database.
    - `functions` is firebase cloud functions directory.
@@ -28,7 +28,39 @@ There are two kinds of deployment:
      # all functionalities are deployed in the firebase from now on
      ```
 
-2. Deploy your backend services to your own private services.
+2. Deploy `Smart Home` services to your own private server.
+
+   - You should compile all `Typescript` file to `JavaScript` file first.
+
+     ```bash
+     yarn tsc
+     ```
+
+   - Implement your own `config/index.json` file.
+
+     ```json
+     {
+       "google_api_key": "access google homegraph"
+     }
+     ```
+
+     > `Google api key` is used to access your own google homegraph service.
+
+     **NOTICE**: DO NOT commit `config/index.json` with any secret key into your git.
+
+   - Run deployment command
+
+     ```bash
+     # deploy services
+     # Services is running at http://127.0.0.1:7001 by default
+     yarn deploy
+
+     # stop services
+     # shut down master worker work with cluster module (multi-process model)
+     yarn stop
+     ```
+
+[firebase-admin-sdk.json]: https://firebase.google.com/docs/admin/setup
 
 ### Notice⚠️
 
