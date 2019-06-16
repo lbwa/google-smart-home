@@ -3,15 +3,13 @@
 
 import 'egg';
 import ExportAuth from '../../../app/service/Auth';
-import ExportFirestore from '../../../app/service/Firestore';
+import ExportMongo from '../../../app/service/Mongo';
 import ExportSmartHome from '../../../app/service/SmartHome';
-import ExportTest from '../../../app/service/Test';
 
 declare module 'egg' {
   interface IService {
     auth: ExportAuth;
-    firestore: ExportFirestore;
+    mongo: ExportMongo;
     smartHome: ExportSmartHome;
-    test: ExportTest;
   }
 }
