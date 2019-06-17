@@ -11,6 +11,23 @@ There are all [smart home references] including all data schema and `REST` API, 
 [google home official site]: https://developers.google.com/actions/smarthome/concepts/
 [smart home references]: https://developers.google.com/actions/smarthome/traits/
 
+### Actions on Google
+
+This section will set up these setting for `Google smart home` request :
+
+- Your own private `OAuth 2.0` client id and client secret which is identify current request is come from `Google`.
+- Your `OAuth 2.0` authorization endpoint which is used to distribute a authorization code for exchanging access token and refresh token.
+- Your `OAuth 2.0` token exchange endpoint which is used to exchange access token and refresh token via a authorization code which is come from authorization endpoint.
+
+  > `Google` stores the access token and the refresh token for the user and records the expiration of the access token. When the access token expires, `Google` uses the refresh token to get a new access token from your token exchange endpoint.
+
+- Your `smart home` services fulfillment address, only support `HTTPS` protocol.
+
+You can follow this [manual][create a action] to create a `Google actions` in the [Actions console].
+
+[create a action]: https://developers.google.com/actions/smarthome/develop/create#create-project
+[actions console]: https://console.actions.google.com/
+
 ### Deployment🚀
 
 There are two kinds of deployment:
