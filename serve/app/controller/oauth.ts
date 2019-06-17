@@ -21,22 +21,27 @@ export default class Oauth extends Controller {
    */
   async authCode() {
     const {
-      ctx: { query },
+      ctx: {
+        query: {
+          client_id: clientId,
+          client_secret: clientSecret,
+          redirect_uri: redirectUri,
+          response_type: responseType,
+          state
+        }
+      },
       app: { config }
     } = this
     try {
-      assert.equal(query.client_id, config.OAUTH_CLIENT_ID, 'invalid client_id')
+      assert.equal(clientId, config.OAUTH_CLIENT_ID, 'invalid client_id')
       assert.equal(
-        query.client_secret,
+        clientSecret,
         config.OAUTH_CLIENT_SECRET,
         'invalid client_secret'
       )
-      assert.ok(
-        REDIRECT_URI_REG.test(query.redirect_uri),
-        'invalid redirect_uri'
-      )
+      assert.ok(REDIRECT_URI_REG.test(redirectUri), 'invalid redirect_uri')
       assert.equal(
-        query.response_type,
+        responseType,
         RESPONSE_TYPE,
         'Only support Authorization code flow, rather than implicit code flow.'
       )
@@ -45,14 +50,14 @@ export default class Oauth extends Controller {
 
       // Google will send a GET request with a query string named state which
       // is used to identify what application to link to
-      const redirectUri =
-        query.redirect_uri +
+      const formattedRedirectUri =
+        redirectUri +
         config.GOOGLE_PROJECT_ID +
         `?code=${authCode}` +
-        `&state=${query.state}`
+        `&state=${state}`
 
       // Redirect to google site to link user account to user's google account
-      this.ctx.redirect(redirectUri)
+      this.ctx.redirect(formattedRedirectUri)
     } catch (err) {
       this.logger.error(err)
       this.ctx.body = {
