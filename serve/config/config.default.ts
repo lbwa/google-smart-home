@@ -6,6 +6,8 @@ import {
   google_api_key as GOOGLE_API_KEY
 } from './index.json'
 
+const SECURITY_WHITELIST = ['/smart_home', '/token']
+
 export default (appInfo: EggAppInfo) => {
   const config = {} as PowerPartial<EggAppConfig>
 
@@ -19,7 +21,8 @@ export default (appInfo: EggAppInfo) => {
   // egg security
   config.security = {
     csrf: {
-      ignore: '/smart_home'
+      ignore: ctx =>
+        SECURITY_WHITELIST.some(path => new RegExp(path).test(ctx.path))
     }
   }
 
