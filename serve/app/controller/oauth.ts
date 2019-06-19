@@ -17,18 +17,18 @@ const SAMPLE_REFRESH_TOKEN = 'unique_refresh_token'
 
 /**
  * @description Two endpoints for OAuth 2.0
- * DOC: https://developers.google.com/actions/identity/oauth2?oauth=code#implement_oauth_account_linking
+ * DOC: https://developers.google.com/actions/identity/oauth2?oauth=code#implement_your_oauth_server
  */
 export default class Oauth extends Controller {
   /**
    * @description Authorization code endpoint
+   * Authorization endpoint parameters doesn't include client_secret
    */
   async authCode() {
     const {
       ctx: {
         query: {
           client_id: clientId,
-          client_secret: clientSecret,
           redirect_uri: redirectUri,
           response_type: responseType,
           state
@@ -38,11 +38,6 @@ export default class Oauth extends Controller {
     } = this
     try {
       assert.strictEqual(clientId, config.OAUTH_CLIENT_ID, 'invalid client_id')
-      assert.strictEqual(
-        clientSecret,
-        config.OAUTH_CLIENT_SECRET,
-        'invalid client_secret'
-      )
       assert.ok(REDIRECT_URI_REG.test(redirectUri), 'invalid redirect_uri')
       assert.strictEqual(
         responseType,
@@ -74,6 +69,7 @@ export default class Oauth extends Controller {
 
   /**
    * @description Token exchange endpoint
+   * Client secret only attached to Token exchange endpoint request
    */
   async token() {
     try {
