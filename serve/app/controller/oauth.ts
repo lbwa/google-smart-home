@@ -4,16 +4,19 @@ import assert = require('assert')
 const REDIRECT_TO_GOOGLE = 'https://oauth-redirect.googleusercontent.com/r/'
 const REDIRECT_URI_REG = new RegExp(REDIRECT_TO_GOOGLE)
 const RESPONSE_TYPE = 'code'
-const GRANT_TYPES = {
-  code: 'authorization_code' /* Sync with Google docs */,
-  refreshToken: 'refresh_token' /* Sync with Google docs */
-}
 const SECONDS_TO_EXPIRATION = 60 * 60
 
-// These variables with session should be stored by database
-const SAMPLE_AUTHORIZATION_CODE = 'authorization_code'
-const SAMPLE_ACCESS_TOKEN = 'unique_access_token'
-const SAMPLE_REFRESH_TOKEN = 'unique_refresh_token'
+enum GRANT_TYPES {
+  code = 'authorization_code' /* Sync with Google docs */,
+  refreshToken = 'refresh_token' /* Sync with Google docs */
+}
+
+// This enum with Promise is used to simulate database process
+enum SAMPLE {
+  AUTHORIZATION_CODE = 'authorization_code',
+  ACCESS_TOKEN = 'unique_access_token',
+  REFRESH_TOKEN = 'unique_refresh_token'
+}
 
 /**
  * @description Two endpoints for OAuth 2.0
@@ -45,7 +48,7 @@ export default class Oauth extends Controller {
         'Only support Authorization code flow, rather than implicit code flow.'
       )
 
-      const authCode = await Promise.resolve(SAMPLE_AUTHORIZATION_CODE)
+      const authCode = await Promise.resolve(SAMPLE.AUTHORIZATION_CODE)
 
       // Google will send a GET request with a query string named state which
       // is used to identify what application to link to
@@ -101,14 +104,14 @@ export default class Oauth extends Controller {
       if (code) {
         assert.strictEqual(
           code,
-          await Promise.resolve(SAMPLE_AUTHORIZATION_CODE),
+          await Promise.resolve(SAMPLE.AUTHORIZATION_CODE),
           'invalid authorization code'
         )
         assert.strictEqual(grantType, GRANT_TYPES.code, 'invalid grant_type')
         this.ctx.body = {
           token_type: 'Bearer',
-          access_token: await Promise.resolve(SAMPLE_ACCESS_TOKEN),
-          refresh_token: await Promise.resolve(SAMPLE_REFRESH_TOKEN),
+          access_token: await Promise.resolve(SAMPLE.ACCESS_TOKEN),
+          refresh_token: await Promise.resolve(SAMPLE.REFRESH_TOKEN),
           expires_in: SECONDS_TO_EXPIRATION
         }
         return
@@ -126,12 +129,12 @@ export default class Oauth extends Controller {
         )
         assert.strictEqual(
           refreshToken,
-          await Promise.resolve(SAMPLE_REFRESH_TOKEN),
+          await Promise.resolve(SAMPLE.REFRESH_TOKEN),
           'invalid refresh token'
         )
         this.ctx.body = {
           token_type: 'Bearer',
-          access_token: await Promise.resolve(SAMPLE_ACCESS_TOKEN),
+          access_token: await Promise.resolve(SAMPLE.ACCESS_TOKEN),
           expires_in: SECONDS_TO_EXPIRATION
         }
         return
