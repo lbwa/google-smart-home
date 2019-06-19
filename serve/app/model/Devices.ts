@@ -6,8 +6,8 @@ export default function(app) {
     type: String,
     traits: [String],
     name: String,
-    defaultNames: String,
-    nicknames: String,
+    defaultNames: [String],
+    nicknames: [String],
     willReportState: Boolean,
     attributes: {
       /**
