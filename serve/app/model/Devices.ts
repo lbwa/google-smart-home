@@ -35,5 +35,10 @@ export default function(app) {
     model: String
   })
 
-  return mongoose.model('Devices', DeviceSchema)
+  /**
+   * @description Mongoose automatically looks for the plural, lowercased version of your model name
+   *
+   * @doc: https://mongoosejs.com/docs/models.html#compiling
+   */
+  return mongoose.model('devices', DeviceSchema)
 }

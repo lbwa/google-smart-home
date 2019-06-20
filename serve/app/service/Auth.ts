@@ -34,7 +34,8 @@ export default class Auth extends Service {
       }
       return userId
     } catch (err) {
-      return Promise.reject(err || this.ERROR_MAP.authFailure)
+      this.logger.error(err)
+      return Promise.reject(err.message || this.ERROR_MAP.authFailure)
     }
   }
 }
