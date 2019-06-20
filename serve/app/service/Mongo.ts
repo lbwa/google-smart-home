@@ -39,7 +39,7 @@ export default class Mongo extends Service {
     }
   }
 
-  public async getDevices(userId: string) {
+  public async getDevices(userId: string): Promise<DeviceState[]> {
     try {
       userId
       const docs = await this.ctx.model.Devices.find({
@@ -70,4 +70,59 @@ export default class Mongo extends Service {
       return Promise.reject(err)
     }
   }
+
+  public async queryDevices(userId: string, deviceId: string) {
+    try {
+      // TODO: 每一个 userId 都应对应一个 devices collection, 以 userId 为索引，
+      // 当下所有的 devices 作为 collection 的值
+      return {
+        online: true,
+        userId,
+        deviceId
+      }
+    } catch (err) {
+      this.logger.error(err)
+      return Promise.reject(err.message || err)
+    }
+  }
+}
+
+interface BasicDeviceState {
+  id: string
+  type: string
+  traits: string[]
+  name: {
+    defaultNames: string[]
+    name: string
+    nicknames: string[]
+  }
+  willReportState: boolean
+}
+
+/**
+ * @description Used to SYNC intent
+ */
+export interface DeviceState extends BasicDeviceState {
+  roomHint?: string
+  deviceInfo?: {
+    manufacturer: string
+    model: string
+    hwVersion: string
+    swVersion: string
+  }
+  attributes?: {
+    [key: string]: any
+  }
+  customData?: {
+    [key: string]: any
+  }
+  [key: string]: any
+}
+
+/**
+ * @description Used to QUERY intent
+ */
+export interface IsDeviceOnlineState {
+  online: boolean
+  [extraState: string]: any
 }
