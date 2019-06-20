@@ -38,9 +38,9 @@ There are two kinds of deployment:
    - `functions` is firebase cloud functions directory.
 
      ```bash
-     firebase login
+     $ firebase login
 
-     firebase deploy
+     $ firebase deploy
 
      # all functionalities are deployed in the firebase from now on
      ```
@@ -50,7 +50,7 @@ There are two kinds of deployment:
    - You should compile all `Typescript` file to `JavaScript` file first.
 
      ```bash
-     yarn tsc
+     $ yarn tsc
      ```
 
    - Implement your own `config/index.json` file.
@@ -70,11 +70,11 @@ There are two kinds of deployment:
      ```bash
      # deploy services
      # Services is running at http://127.0.0.1:7001 by default
-     yarn deploy
+     $ yarn deploy
 
      # stop services
      # shut down master worker work with cluster module (multi-process model)
-     yarn stop
+     $ yarn stop
      ```
 
 [firebase-admin-sdk.json]: https://firebase.google.com/docs/admin/setup
@@ -103,14 +103,14 @@ You should follow these step to build this sample if you want that firebase work
    ```sh
    # eg:
    # > export http_proxy=http://127.0.0.1:8000
-   export http_proxy=<the http address of network proxy, including network port>
+   $ export http_proxy=<the http address of network proxy, including network port>
 
    # Optional step
-   export NODE_TLS_REJECT_UNAUTHORIZED=0
+   $ export NODE_TLS_REJECT_UNAUTHORIZED=0
    ```
 
 1. `firebase login` without local server in your own `shell`
 
    ```sh
-   firebase login --no-localhost
+   $ firebase login --no-localhost
    ```
