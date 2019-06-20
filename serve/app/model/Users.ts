@@ -9,5 +9,10 @@ export default function(app) {
     id: Schema.Types.ObjectId
   })
 
-  return mongoose.model('User', UserSchema)
+  /**
+   * @description Mongoose automatically looks for the plural, lowercased version of your model name
+   *
+   * @doc: https://mongoosejs.com/docs/models.html#compiling
+   */
+  return mongoose.model('users', UserSchema)
 }

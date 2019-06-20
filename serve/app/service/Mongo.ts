@@ -13,7 +13,7 @@ export default class Mongo extends Service {
     refresh_token: string
   }> {
     try {
-      return await this.ctx.model.User.create({
+      return await this.ctx.model.Users.create({
         username,
         password,
         access_token: `access_token_${Math.random()
@@ -30,7 +30,9 @@ export default class Mongo extends Service {
 
   public async getUserId(accessToken: string): Promise<string> {
     try {
-      const docs = await this.ctx.model.User.find({ access_token: accessToken })
+      const docs = await this.ctx.model.Users.find({
+        access_token: accessToken
+      })
       if (!docs.length) throw new Error(this.service.auth.ERROR_MAP.authFailure)
 
       return docs[0].id
@@ -67,6 +69,7 @@ export default class Mongo extends Service {
         attributes: doc.attributes
       }))
     } catch (err) {
+      this.logger.error(err)
       return Promise.reject(err)
     }
   }
