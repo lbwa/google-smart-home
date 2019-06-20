@@ -19,7 +19,7 @@ export default class Auth extends Service {
 
       return await this.service.mongo.getUserId(accessToken)
     } catch (err) {
-      throw new Error(err || this.ERROR_MAP.authExpired)
+      return Promise.reject(err || this.ERROR_MAP.authExpired)
     }
   }
 
@@ -34,7 +34,7 @@ export default class Auth extends Service {
       }
       return userId
     } catch (err) {
-      throw new Error(err || this.ERROR_MAP.authFailure)
+      return Promise.reject(err || this.ERROR_MAP.authFailure)
     }
   }
 }
