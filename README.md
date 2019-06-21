@@ -42,7 +42,7 @@ There are two kinds of deployment:
 
      $ firebase deploy
 
-     # all functionalities are deployed in the firebase from now on
+     # All functionalities has been deployed on the firebase platform right now.
      ```
 
 2. Deploy `Smart Home` services to your own private server.
