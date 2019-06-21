@@ -5,7 +5,7 @@ export default class Mongo extends Service {
     deviceNotFound: 'deviceNotFound'
   }
 
-  public async createUser(
+  async createUser(
     username: string,
     password: string
   ): Promise<{
@@ -28,7 +28,7 @@ export default class Mongo extends Service {
     }
   }
 
-  public async getUserId(accessToken: string): Promise<string> {
+  async getUserId(accessToken: string): Promise<string> {
     try {
       const docs = await this.ctx.model.Users.find({
         access_token: accessToken
@@ -41,11 +41,10 @@ export default class Mongo extends Service {
     }
   }
 
-  public async getDevices(userId: string): Promise<DeviceState[]> {
+  async getDevices(userId: string): Promise<DeviceState[]> {
     try {
-      userId
       const docs = await this.ctx.model.Devices.find({
-        id: userId
+        userId
       })
 
       if (!docs.length) throw new Error(this.ERR_CODE.deviceNotFound)
@@ -74,14 +73,21 @@ export default class Mongo extends Service {
     }
   }
 
-  public async queryDevices(userId: string, deviceId: string) {
+  async queryDevice(userId: string, deviceId: string): Promise<QueryDevice> {
     try {
-      // TODO: 每一个 userId 都应对应一个 devices collection, 以 userId 为索引，
-      // 当下所有的 devices 作为 collection 的值
+      const [deviceDoc] = await this.ctx.model.Devices.find({
+        userId: userId,
+        id: deviceId
+      })
+      /**
+       * @description Turn document to JS Object
+       * @DOC https://mongoosejs.com/docs/api.html#document_Document-toObject
+       */
+      const device = deviceDoc.toObject()
       return {
-        online: true,
-        userId,
-        deviceId
+        id: deviceDoc.id.toString(),
+        online: device.online,
+        on: device.on
       }
     } catch (err) {
       this.logger.error(err)
@@ -126,6 +132,13 @@ export interface DeviceState extends BasicDeviceState {
  * @description Used to QUERY intent
  */
 export interface IsDeviceOnlineState {
+  online: boolean
+  [extraState: string]: any
+}
+
+interface QueryDevice {
+  id: string
+  on: boolean
   online: boolean
   [extraState: string]: any
 }
