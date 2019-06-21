@@ -61,17 +61,16 @@ export default class SmartHome extends Service {
   ): Promise<SmartHomeResponse<QueryResponse>> {
     try {
       const userId = await this.service.auth.getUserOrThrow()
+      // Once a devices query failed, Query process occur a error
       const queries = await Promise.all(
-        devices.map(device =>
-          this.service.mongo.queryDevices(userId, device.id)
-        )
+        devices.map(device => this.service.mongo.queryDevice(userId, device.id))
       )
 
-      if (!queries.length) throw new Error()
+      if (!queries.length) throw new Error('Unsuccessful device queries !')
 
       const stateMap = queries.reduce(
         (stateMap, query) => {
-          stateMap.deviceId = query
+          stateMap[query.id || 'no device id'] = query
           return stateMap
         },
         {} as QueryResponse['devices']
