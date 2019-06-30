@@ -1,6 +1,22 @@
 import { Service } from 'egg'
 import { DeviceState, IsDeviceOnlineState } from './Mongo'
 
+/**
+ * @description Google Smart Home Services
+ * @SourceOfInspiration Inspired by actions-on-google-nodejs v2.8.0
+ * https://github.com/actions-on-google/actions-on-google-nodejs/blob/v2.8.0/src/service/smarthome/smarthome.ts#L386-L443
+ * @StackInActionsOnGoogle - How action -on-google-nodejs works
+ * @step1 action trigger:
+ * https://github.com/actions-on-google/actions-on-google-nodejs/blob/v2.8.0/src/assistant.ts#L95
+ * @step2 pass payload to handler wrapper:
+ * https://github.com/actions-on-google/actions-on-google-nodejs/blob/v2.8.0/src/assistant.ts#L72-L75
+ * @step3 invoke actions handler wrapper:
+ * https://github.com/actions-on-google/actions-on-google-nodejs/blob/v2.8.0/src/framework/express.ts#L46
+ * @step4 invoke actions handler set by developer:
+ * https://github.com/actions-on-google/actions-on-google-nodejs/blob/v2.8.0/src/service/smarthome/smarthome.ts#L440
+ * @step5 set http response with status code, body:
+ * https://github.com/actions-on-google/actions-on-google-nodejs/blob/v2.8.0/src/framework/express.ts#L47-L54
+ */
 export default class SmartHome extends Service {
   async dispatch({
     type,
@@ -12,16 +28,16 @@ export default class SmartHome extends Service {
     requestId: string
   }) {
     if (type === 'action.devices.SYNC') {
-      return this.service.smartHome.onSync()
+      return this.onSync()
     }
     if (type === 'action.devices.QUERY') {
-      return this.service.smartHome.onQuery(requestId, payload.devices)
+      return this.onQuery(requestId, payload.devices)
     }
     if (type === 'action.devices.EXECUTE') {
-      return this.service.smartHome.onExecute(requestId, payload)
+      return this.onExecute(requestId, payload)
     }
     if (type === 'action.devices.DISCONNECT') {
-      return this.service.smartHome.onDisconnect(requestId, payload)
+      return this.onDisconnect(requestId, payload)
     }
 
     return this.errorHandler('notSupported')
