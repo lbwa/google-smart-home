@@ -94,6 +94,12 @@ export default class Mongo extends Service {
       return Promise.reject(err.message || err)
     }
   }
+
+  async deviceExecution(userId: string, deviceId: string, command) {
+    return {
+      online: true
+    }
+  }
 }
 
 interface BasicDeviceState {

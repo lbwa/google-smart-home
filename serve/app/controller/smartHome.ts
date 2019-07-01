@@ -6,10 +6,15 @@ export default class SmartHomeController extends Controller {
 
     try {
       const { requestId, inputs } = ctx.request.body
+
+      /**
+       * @description Every request from google has only one intent
+       * @ref https://github.com/actions-on-google/actions-on-google-nodejs/blob/v2.8.0/src/service/smarthome/smarthome.ts#L434
+       */
       const { intent, payload = {} } = inputs[0]
 
       ctx.body = await service.smartHome.dispatch({
-        type: intent,
+        intent,
         payload,
         requestId
       })

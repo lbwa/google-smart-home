@@ -18,26 +18,24 @@ import { DeviceState, IsDeviceOnlineState } from './Mongo'
  * https://github.com/actions-on-google/actions-on-google-nodejs/blob/v2.8.0/src/framework/express.ts#L47-L54
  */
 export default class SmartHome extends Service {
+  private readonly INTENT_MAP = {
+    'action.devices.SYNC': this.onSync,
+    'action.devices.QUERY': this.onQuery,
+    'action.devices.EXECUTE': this.onExecute,
+    'action.devices.DISCONNECT': this.onDisconnect
+  }
+
   async dispatch({
-    type,
+    intent,
     payload,
     requestId
   }: {
-    type: string
+    intent: string
     payload: any
     requestId: string
-  }) {
-    if (type === 'action.devices.SYNC') {
-      return this.onSync()
-    }
-    if (type === 'action.devices.QUERY') {
-      return this.onQuery(requestId, payload.devices)
-    }
-    if (type === 'action.devices.EXECUTE') {
-      return this.onExecute(requestId, payload)
-    }
-    if (type === 'action.devices.DISCONNECT') {
-      return this.onDisconnect(requestId, payload)
+  }): Promise<SmartHomeResponse<any>> {
+    if (this.INTENT_MAP[intent]) {
+      return this.INTENT_MAP[intent].call(this, requestId, payload)
     }
 
     return this.errorHandler('notSupported')
@@ -73,7 +71,7 @@ export default class SmartHome extends Service {
    */
   async onQuery(
     requestId: string,
-    devices: DeviceState[]
+    { devices }: { devices: DeviceState[] }
   ): Promise<SmartHomeResponse<QueryResponse>> {
     try {
       const userId = await this.service.auth.getUserOrThrow()
@@ -107,11 +105,58 @@ export default class SmartHome extends Service {
    * @description
    * @doc https://developers.google.com/actions/smarthome/develop/process-intents#EXECUTE
    */
-  async onExecute(requestId: string, payload: any) {
-    // todo
+  async onExecute(
+    requestId: string,
+    { commands }: SmartHomeExecutePayload
+  ): Promise<SmartHomeResponse<SmartHomeExecuteResponse>> {
+    const userId = await this.service.auth.getUserOrThrow()
+
+    const responseCommands: SmartHomeExecuteResponse['commands'] = [
+      {
+        ids: [],
+        status: 'SUCCESS',
+        states: {} as { online: boolean }
+      }
+    ]
+
+    for (let index = 0; index < commands.length; index++) {
+      const { devices, execution } = commands[index]
+      for (const { id: deviceId } of devices) {
+        const states = await this.service.mongo.deviceExecution(
+          userId,
+          deviceId,
+          // TODO: Support multiple executions in the same request
+          execution[0]
+        )
+        responseCommands[index].ids.push(deviceId)
+        responseCommands[index].states = states
+
+        // Report state back to Google HomeGraph
+        // (google-api-jwt is required)
+        // await this.reportState({
+        //   agentUserId: userId,
+        //   requestId:
+        //     deviceId +
+        //     Date.now() +
+        //     Math.random()
+        //       .toString(16)
+        //       .slice(2),
+        //   payload: {
+        //     devices: {
+        //       states: {
+        //         [deviceId]: states
+        //       }
+        //     }
+        //   }
+        // })
+      }
+    }
+
     return {
       requestId,
-      payload
+      payload: {
+        commands: responseCommands
+      }
     }
   }
 
@@ -174,4 +219,34 @@ interface QueryResponse {
   devices: {
     [deviceId: string]: IsDeviceOnlineState | SmartHomeErrorResponse
   }
+}
+
+interface SmartHomeExecutePayload {
+  commands: {
+    devices: {
+      id: string
+      customData?: {
+        [extraData: string]: any
+      }
+    }[]
+    execution: {
+      command: string
+      params: {
+        [executionName: string]: string | number | boolean
+      }
+    }[]
+  }[]
+}
+
+type SmartHomeExecuteStatus = 'SUCCESS' | 'PENDING' | 'OFFLINE' | 'ERROR'
+
+interface SmartHomeExecuteResponse {
+  commands: {
+    ids: string[]
+    status: SmartHomeExecuteStatus
+    states?: {
+      online: boolean
+      [extraState: string]: string | number | boolean
+    }
+  }[]
 }
